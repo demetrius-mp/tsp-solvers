@@ -6,7 +6,7 @@ public class Solution {
     private int i;
 
     public Solution() {}
-    
+
     public Solution(Vertex[] path, double distance) {
         this.path = path;
         this.distance = distance;
@@ -38,9 +38,11 @@ public class Solution {
 
     public static double getDistance(Vertex[] path) {
         double distance = 0;
-        for (int i = 0; i < path.length - 1; i++) {
+        int i;
+        for (i = 0; i < path.length - 1; i++) {
             distance += path[i].distanceFrom(path[i + 1]);
         }
+        distance += path[0].distanceFrom(path[i]);
 
         return distance;
     }

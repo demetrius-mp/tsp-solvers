@@ -1,5 +1,6 @@
 package application;
 
+import metaheuristics.HillClimbing;
 import utils.FileHandler;
 import utils.Solution;
 import utils.Vertex;
@@ -25,5 +26,9 @@ public class App {
         System.out.println("Test 3: Reading file");
         s1 = FileHandler.read("./instances/bier127.tsp.txt");
         System.out.println(s1);
+
+        System.out.println("Test 4: Getting best neighbor of Hill Climbing");
+        HillClimbing hc = new HillClimbing(s1);
+        System.out.println(hc.getBestNeighborhood());
     }
 }
