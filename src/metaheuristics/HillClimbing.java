@@ -22,6 +22,91 @@ public class HillClimbing {
         }
     }
 
+    private static double getNeighborDistance2(Solution actual, int i, int j) {
+        double difference = 0;
+        Vertex[] current = actual.path;
+        if (i == 0) {
+            if (j < 3) {
+                difference -= current[j].distanceFrom(current[j + 1]);
+                difference += current[i].distanceFrom(current[j + 1]);
+
+                difference -= current[current.length - 1].distanceFrom(current[i]);
+                difference += current[current.length - 1].distanceFrom(current[j]);
+            }
+
+            else if (j < current.length - 1) {
+                // left side of j vertex
+                difference -= current[j - 1].distanceFrom(current[j]);
+                difference += current[j - 1].distanceFrom(current[i]);
+                // right side of j vertex
+                difference -= current[j].distanceFrom(current[j + 1]);
+                difference += current[i].distanceFrom(current[j + 1]);
+
+
+                // last to first vertex
+                difference -= current[current.length - 1].distanceFrom(current[i]);
+                difference += current[current.length - 1].distanceFrom(current[j]);
+
+                // first to second vertex
+                difference -= current[i].distanceFrom(current[i + 1]);
+                difference += current[j].distanceFrom(current[i + 1]);
+            }
+
+            else {
+                difference -= current[i].distanceFrom(current[i + 1]);
+                difference += current[j].distanceFrom(current[i + 1]);
+
+                difference -= current[j - 1].distanceFrom(current[j]);
+                difference += current[j - 1].distanceFrom(current[i]);
+            }
+        }
+
+        else {
+            // could change the last 2 lines of if else with
+            // difference -= current[j].distanceFrom(current[(j + 1) % current.length]);
+            // difference += current[i].distanceFrom(current[(j + 1) % current.length]);
+            // but checking the lengh is less expensive than mod operation
+            int jLastIndex = j == current.length - 1 ? 0 : j + 1;
+            if (i == j - 1) {
+                difference -= current[i - 1].distanceFrom(current[i]);
+                difference += current[i - 1].distanceFrom(current[j]);
+
+                difference -= current[j].distanceFrom(current[jLastIndex]);
+                difference += current[i].distanceFrom(current[jLastIndex]);
+            }
+
+            else if (j == current.length - 1) {
+                difference -= current[i - 1].distanceFrom(current[i]);
+                difference += current[i - 1].distanceFrom(current[j]);
+
+                difference -= current[i].distanceFrom(current[i + 1]);
+                difference += current[j].distanceFrom(current[i + 1]);
+
+                difference -= current[j - 1].distanceFrom(current[j]);
+                difference += current[j - 1].distanceFrom(current[i]);
+
+                difference -= current[j].distanceFrom(current[jLastIndex]);
+                difference += current[i].distanceFrom(current[jLastIndex]);
+            }
+
+            else {
+                difference -= current[i - 1].distanceFrom(current[i]);
+                difference += current[i - 1].distanceFrom(current[j]);
+
+                difference -= current[i].distanceFrom(current[i + 1]);
+                difference += current[j].distanceFrom(current[i + 1]);
+
+                difference -= current[j - 1].distanceFrom(current[j]);
+                difference += current[j - 1].distanceFrom(current[i]);
+
+                difference -= current[j].distanceFrom(current[jLastIndex]);
+                difference += current[i].distanceFrom(current[jLastIndex]);
+            }
+        }
+
+        return actual.distance + difference;
+    }
+
     private static double getNeighborDistance(Solution actual, Vertex[] other, int i, int j) {
         double difference = 0;
         Vertex[] current = actual.path;
@@ -134,24 +219,42 @@ public class HillClimbing {
         int pathSize = currentSolution.path.length;
 
         double bestDistance = currentSolution.distance;
-        Vertex[] bestPath = null;
+        Vertex[] bestPath = new Vertex[pathSize];
+        System.arraycopy(currentSolution.path, 0, bestPath, 0, pathSize);
+        Solution bestNeighbor = new Solution(bestPath, bestDistance);
+
+        int oldI = -1;
+        int oldJ = -1;
 
         for (int i = 0; i < pathSize; i++) {
             for (int j = i + 1; j < pathSize; j++) {
-                Vertex[] neighborPath = new Vertex[pathSize];
-                System.arraycopy(currentSolution.path, 0, neighborPath, 0, pathSize);
+                //Vertex[] neighborPath = new Vertex[pathSize];
+                //System.arraycopy(currentSolution.path, 0, neighborPath, 0, pathSize);
 
-                neighborPath[i] = currentSolution.path[j];
-                neighborPath[j] = currentSolution.path[i];
+                //neighborPath[i] = currentSolution.path[j];
+                //neighborPath[j] = currentSolution.path[i];
 
-                // double neighborDistance = Solution.getDistance(neighborPath);
-                double neighborDistance = HillClimbing.getNeighborDistance(currentSolution, neighborPath, i, j);
+                //double neighborDistance = HillClimbing.getNeighborDistance(currentSolution, neighborPath, i, j);
+                double neighborDistance = HillClimbing.getNeighborDistance2(currentSolution, i, j);
+                //double neighborDistance = Solution.getDistance(neighborPath);
+
                 if (neighborDistance < bestDistance) {
+                    if (oldI != -1) {
+                        bestNeighbor.path[oldI] = currentSolution.path[oldI];
+                        bestNeighbor.path[oldJ] = currentSolution.path[oldJ];
+                    }
+                    oldI = i;
+                    oldJ = j;
+
+                    System.out.println(neighborDistance);
+                    bestNeighbor.path[i] = currentSolution.path[j];
+                    bestNeighbor.path[j] = currentSolution.path[i];
                     bestDistance = neighborDistance;
-                    bestPath = neighborPath;
+                    bestNeighbor.distance = neighborDistance;
+                    //bestPath = neighborPath;
                 }
             }
         }
-        return new Solution(bestPath, bestDistance);
+        return bestNeighbor;
     }
 }
