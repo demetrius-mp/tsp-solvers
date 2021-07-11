@@ -6,17 +6,9 @@ import utils.Solution;
 import utils.Vertex;
 
 public class HillClimbing {
-    public Solution currentSolution;
 
-    public HillClimbing() {
-    }
-
-    public HillClimbing(Solution solution) {
-        this.currentSolution = solution;
-    }
-
-    public void shuffleSolution() {
-        Vertex[] path = this.currentSolution.path;
+    public static void shuffleSolution(Solution solution) {
+        Vertex[] path = solution.path;
 
         Random random = new Random();
         Vertex tmp;
@@ -30,9 +22,9 @@ public class HillClimbing {
         }
     }
 
-    private double getNeighborDistance(Vertex[] other, int i, int j) {
+    private static double getNeighborDistance(Solution actual, Vertex[] other, int i, int j) {
         double difference = 0;
-        Vertex[] current = this.currentSolution.path;
+        Vertex[] current = actual.path;
         if (i == 0) {
             if (j < 3) {
                 difference -= current[j].distanceFrom(current[j + 1]);
@@ -100,34 +92,66 @@ public class HillClimbing {
             }
         }
 
-        return this.currentSolution.distance + difference;
+        return actual.distance + difference;
     }
 
-    public Solution getBestNeighborhood() {
-        Vertex[] currentPath = this.currentSolution.path;
-        double bestDistance = Double.POSITIVE_INFINITY;
-        Solution bestNeighbor = new Solution();
+    public static Solution[] getNeighborhood(Solution currentSolution) {
+        int n = currentSolution.path.length;
+        Solution[] neighborhood = new Solution[(n * (n - 1)) / 2];
+        int index = 0;
 
-        for (int i = 1; i < currentPath.length; i++) {
-            for (int j = i + 1; j < currentPath.length; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                Vertex[] neighborPath = new Vertex[n];
+                System.arraycopy(currentSolution.path, 0, neighborPath, 0, n);
+                neighborPath[i] = currentSolution.path[j];
+                neighborPath[j] = currentSolution.path[i];
 
-                // neighbor path = copy of current path, but with 2 interchanged positions
-                Vertex[] neighborPath = new Vertex[currentPath.length];
-                System.arraycopy(currentPath, 0, neighborPath, 0, currentPath.length);
+                neighborhood[index++] = new Solution(neighborPath);
+            }
+        }
 
-                neighborPath[i] = currentPath[j];
-                neighborPath[j] = currentPath[i];
+        return neighborhood;
+    }
 
-                double neighborDistance = getNeighborDistance(neighborPath, i, j);
-                if (neighborDistance < bestDistance) {
-                    bestDistance = neighborDistance;
+    public static Solution findBestNeighbor(Solution[] neighborhood) {
+        double bestDistance = Solution.getDistance(neighborhood[0].path);
+        Solution bestNeighbor = new Solution(neighborhood[0].path, bestDistance);
 
-                    bestNeighbor.path = neighborPath;
-                    bestNeighbor.distance = neighborDistance;
-                }
+        for (int i = 1; i < neighborhood.length; i++) {
+            neighborhood[i].calculateDistance();
+
+            if (neighborhood[i].distance < bestDistance) {
+                bestDistance = neighborhood[i].distance;
+                bestNeighbor = neighborhood[i];
             }
         }
 
         return bestNeighbor;
+    }
+
+    public static Solution getBestNeighbor(Solution currentSolution) {
+        int pathSize = currentSolution.path.length;
+
+        double bestDistance = currentSolution.distance;
+        Vertex[] bestPath = null;
+
+        for (int i = 0; i < pathSize; i++) {
+            for (int j = i + 1; j < pathSize; j++) {
+                Vertex[] neighborPath = new Vertex[pathSize];
+                System.arraycopy(currentSolution.path, 0, neighborPath, 0, pathSize);
+
+                neighborPath[i] = currentSolution.path[j];
+                neighborPath[j] = currentSolution.path[i];
+
+                // double neighborDistance = Solution.getDistance(neighborPath);
+                double neighborDistance = HillClimbing.getNeighborDistance(currentSolution, neighborPath, i, j);
+                if (neighborDistance < bestDistance) {
+                    bestDistance = neighborDistance;
+                    bestPath = neighborPath;
+                }
+            }
+        }
+        return new Solution(bestPath, bestDistance);
     }
 }

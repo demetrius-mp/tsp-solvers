@@ -14,7 +14,6 @@ public class Solution {
 
     public Solution(Vertex[] path) {
         this.path = path;
-        this.distance = Solution.getDistance(path);
     }
 
     public Solution(int pathSize) {
@@ -34,6 +33,10 @@ public class Solution {
 
         this.path[this.i] = v;
         this.i++;
+    }
+
+    public void calculateDistance() {
+        this.distance = getDistance(this.path);
     }
 
     public static double getDistance(Vertex[] path) {

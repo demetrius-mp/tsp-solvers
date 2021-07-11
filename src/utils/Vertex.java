@@ -22,6 +22,6 @@ public class Vertex {
 
     @Override
     public String toString() {
-        return "Vertex [label=" + label + ", x=" + x + ", y=" + y + "]";
+        return "" + this.label;
     }
 }
