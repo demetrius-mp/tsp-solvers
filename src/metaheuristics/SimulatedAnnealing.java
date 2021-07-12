@@ -31,13 +31,7 @@ public class SimulatedAnnealing {
             double neighborDistance = Utils.getNeighborDistance(currentSolution, neighborIndexes[0], neighborIndexes[1]);
 
             if (acceptSolution(currentSolution.distance, neighborDistance, currentTemperature)) {
-                Vertex temp = currentSolution.path[neighborIndexes[0]];
-                currentSolution.path[neighborIndexes[0]] = currentSolution.path[neighborIndexes[1]];
-                currentSolution.path[neighborIndexes[1]] = temp;
-                currentSolution.distance = neighborDistance;
-
-                neighborIndexes[0] = 0;
-                neighborIndexes[1] = 0;
+                changeSolution(currentSolution, neighborIndexes, neighborDistance);
             }
 
             currentIteration++;
@@ -63,13 +57,7 @@ public class SimulatedAnnealing {
             double neighborDistance = Utils.getNeighborDistance(currentSolution, neighborIndexes[0], neighborIndexes[1]);
 
             if (acceptSolution(currentSolution.distance, neighborDistance, currentTemperature)) {
-                Vertex temp = currentSolution.path[neighborIndexes[0]];
-                currentSolution.path[neighborIndexes[0]] = currentSolution.path[neighborIndexes[1]];
-                currentSolution.path[neighborIndexes[1]] = temp;
-                currentSolution.distance = neighborDistance;
-
-                neighborIndexes[0] = 0;
-                neighborIndexes[1] = 0;
+                changeSolution(currentSolution, neighborIndexes, neighborDistance);
             }
 
             currentIteration++;
@@ -99,5 +87,15 @@ public class SimulatedAnnealing {
             currentIndexes[1] = currentIndexes[0] + 1;
         }
         return true;
+    }
+
+    public static void changeSolution(Solution currentSolution, int[] neighborIndexes, double neighborDistance) {
+        Vertex temp = currentSolution.path[neighborIndexes[0]];
+        currentSolution.path[neighborIndexes[0]] = currentSolution.path[neighborIndexes[1]];
+        currentSolution.path[neighborIndexes[1]] = temp;
+        currentSolution.distance = neighborDistance;
+
+        neighborIndexes[0] = 0;
+        neighborIndexes[1] = 0;
     }
 }
